@@ -213,7 +213,7 @@ void* launch2(void* z){
     pthread_t *threads = malloc(nthread * sizeof(*threads));
 
     size_t nb_accesses = 3000000;
-    size_t granularity = 256;
+    size_t granularity = 4096;
     if(granularity > 256)
         nb_accesses /= granularity/256;
     
@@ -221,10 +221,10 @@ void* launch2(void* z){
 
     for(size_t i = 0; i < nthread; i++){
         tt[i] = (thread_t) {
-            .id = i+nthread,
+            .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 0
+            .ro = 1
         };
     }
 
@@ -233,10 +233,10 @@ void* launch2(void* z){
 
     start_timer {
         for(size_t i = 0; i < nthread; i++)
-            pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
+            pthread_create(&threads[i], NULL, dram_test, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
-    } stop_timer("Launch2(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
+    } stop_timer("Launch2(DRAM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
     free(threads);
     free(tt);
     return NULL;
