@@ -52,8 +52,9 @@ void *pmem_test(void *test) {
    } else {
       for(size_t i = 0; i < nb_accesses; i++) {
          uint64_t loc_rand = (lehmer64()/granularity*granularity) % (FILE_SIZE - granularity);
-         pmem_memcpy_persist(&map[loc_rand], page_data, granularity);
+         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_NONTEMPORAL);
       }
+       pmem_drain();
    }
 
    return NULL;
