@@ -180,7 +180,7 @@ void* launch1(void* z){
     pthread_t *threads = malloc(nthread * sizeof(*threads));
 
     size_t nb_accesses = 3000000;
-    size_t granularity = 4096;
+    size_t granularity = 256;
     if(granularity > 256)
         nb_accesses /= granularity/256;
     
@@ -197,7 +197,7 @@ void* launch1(void* z){
 
     start_timer {
         for(size_t i = 0; i < nthread; i++)
-            pthread_create(&threads[i], NULL, pmem_test_temp, (void*)(tt+i));
+            pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
     } stop_timer("Launch1(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
