@@ -256,11 +256,11 @@ int main(int argc, char **argv) {
     free(ithreads);
 
 
-    pthread_t *rr = malloc(1 * sizeof(*rr));
+    pthread_t *rr = malloc(2 * sizeof(*rr));
     pthread_create(rr, NULL, launch1, NULL);
-    //pthread_create(rr+1, NULL, launch2, NULL);
+    pthread_create(rr+1, NULL, launch2, NULL);
     pthread_join(rr[0], NULL);
-   // pthread_join(rr[1], NULL);
+    pthread_join(rr[1], NULL);
 
    clean();
    return 0;
