@@ -180,7 +180,7 @@ void* launch1(void* z){
     pthread_t *threads = malloc(nthread * sizeof(*threads));
 
     size_t nb_accesses = 3000000;
-    size_t granularity = 4096;
+    size_t granularity = 256;
     if(granularity > 256)
         nb_accesses /= granularity/256;
     
@@ -190,7 +190,7 @@ void* launch1(void* z){
             .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 1
+            .ro = 0
         };
     }
 
