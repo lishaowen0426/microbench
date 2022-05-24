@@ -67,6 +67,37 @@ void *pmem_test(void *test) {
 
    return NULL;
 }
+void *pmem_test_temp(void *test) {
+    
+    thread_t* t = (thread_t*)(test);
+
+   size_t id = t->id;
+   size_t granularity = t->granularity;;
+   pin_me_on(id);
+
+   char *map = pmem_maps[id];
+
+   init_seed();
+
+   /* Allocate data to copy to the file */
+   char *page_data = aligned_alloc(PAGE_SIZE, PAGE_SIZE);
+   memset(page_data, 52, PAGE_SIZE);
+
+   if(t->ro) {
+      for(size_t i = 0; i < t->nb_accesses; i++) {
+         uint64_t loc_rand = (lehmer64()/granularity*granularity) % (FILE_SIZE - granularity);
+         memcpy(page_data, &map[loc_rand], granularity);
+      }
+   } else {
+      for(size_t i = 0; i < t->nb_accesses; i++) {
+         uint64_t loc_rand = (lehmer64()/granularity*granularity) % (FILE_SIZE - granularity);
+         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_TEMPORAL);
+      }
+       pmem_drain();
+   }
+
+   return NULL;
+}
 void *dram_test(void *test) {
     thread_t* t = (thread_t*)(test);
    size_t id = t->id;
@@ -159,14 +190,14 @@ void* launch1(void* z){
             .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 1
+            .ro = 0
         };
     }
 
 
     start_timer {
         for(size_t i = 0; i < nthread; i++)
-            pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
+            pthread_create(&threads[i], NULL, pmem_test_temp, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
     } stop_timer("Launch1(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
