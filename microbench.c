@@ -60,7 +60,7 @@ void *pmem_test(void *test) {
    } else {
       for(size_t i = 0; i < t->nb_accesses; i++) {
          uint64_t loc_rand = (lehmer64()/granularity*granularity) % (FILE_SIZE - granularity);
-         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_NONTEMPORAL);
+         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_TEMPORAL);
       }
        pmem_drain();
    }
@@ -169,7 +169,7 @@ void* launch1(void* z){
             pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
-    } stop_timer("Launch1(PMEM): %ld memcpy %lu threads %lu granularity %lu readonly - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, tt[0].ro, nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
+    } stop_timer("Launch1(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
     free(threads);
     free(tt);
 
@@ -182,7 +182,7 @@ void* launch2(void* z){
     pthread_t *threads = malloc(nthread * sizeof(*threads));
 
     size_t nb_accesses = 3000000;
-    size_t granularity = 256;
+    size_t granularity = 4096;
     if(granularity > 256)
         nb_accesses /= granularity/256;
     
@@ -205,7 +205,7 @@ void* launch2(void* z){
             pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
-    } stop_timer("Launch2(PMEM): %ld memcpy %lu threads %lu granularity %lu readonly - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, tt[0].ro, nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
+    } stop_timer("Launch2(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
     free(threads);
     free(tt);
     return NULL;
