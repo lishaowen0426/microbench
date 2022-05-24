@@ -224,7 +224,7 @@ void* launch2(void* z){
             .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 0
+            .ro = 1
         };
     }
 
