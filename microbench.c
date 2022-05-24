@@ -190,17 +190,17 @@ void* launch1(void* z){
             .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 0
+            .ro = 1
         };
     }
 
 
     start_timer {
         for(size_t i = 0; i < nthread; i++)
-            pthread_create(&threads[i], NULL, dram_test, (void*)(tt+i));
+            pthread_create(&threads[i], NULL, pmem_test, (void*)(tt+i));
         for(size_t i = 0; i < nthread; i++)
             pthread_join(threads[i], NULL);
-    } stop_timer("Launch1(DRAM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
+    } stop_timer("Launch1(PMEM): %ld memcpy %lu threads %lu granularity %s - %lu memcpy/s %lu MBs", nthread*nb_accesses, nthread, granularity, (tt[0].ro)?"Read":"Write", nthread*nb_accesses*1000000LU/elapsed, nthread*nb_accesses*granularity*1000000LU/elapsed/1024/1024);
     free(threads);
     free(tt);
 
@@ -224,7 +224,7 @@ void* launch2(void* z){
             .id = i,
             .granularity = granularity,
             .nb_accesses = nb_accesses,
-            .ro = 1
+            .ro = 0
         };
     }
 
