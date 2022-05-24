@@ -60,7 +60,7 @@ void *pmem_test(void *test) {
    } else {
       for(size_t i = 0; i < t->nb_accesses; i++) {
          uint64_t loc_rand = (lehmer64()/granularity*granularity) % (FILE_SIZE - granularity);
-         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_TEMPORAL);
+         pmem_memcpy(&map[loc_rand], page_data, granularity, PMEM_F_MEM_NODRAIN|PMEM_F_MEM_NONTEMPORAL);
       }
        pmem_drain();
    }
@@ -182,7 +182,7 @@ void* launch2(void* z){
     pthread_t *threads = malloc(nthread * sizeof(*threads));
 
     size_t nb_accesses = 3000000;
-    size_t granularity = 4096;
+    size_t granularity = 256;
     if(granularity > 256)
         nb_accesses /= granularity/256;
     
