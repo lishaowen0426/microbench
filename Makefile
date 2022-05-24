@@ -7,7 +7,7 @@ CXX=clang++
 CXXFLAGS= ${CFLAGS} -std=c++11
 
 LDLIBS=-lm -lpthread -lstdc++ -L/home/shaowen/pmdk/install/lib -lpmem -lnuma
-LDFLAGS=-Wl,-rpath,/usr/local/lib
+LDFLAGS=-Wl,-rpath,/home/shaowen/pmdk/install/lib
 
 MICROBENCH_OBJ=microbench.o
 
