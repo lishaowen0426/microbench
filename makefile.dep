@@ -1,2 +1,1 @@
-microbench.o: microbench.c microbench.h \
- /home/shaowen/pmdk/install/include/libpmem.h
+microbench.o: microbench.c microbench.h
